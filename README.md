@@ -1,123 +1,22 @@
-# linux_finalexam
 Linux – Final Examination Project: Automated Server Management
 
+This project is an applied final examination assignment focused on Linux system administration, automation, and security, designed to simulate a real-world scenario for junior system 
+administrators and cybersecurity analysys.
+The task was to build, secure, and manage a Linux-based server environment for a fictional company, emphasizing practical, hands-on skills rather than theory.
 
-#Security Notice
+The project began with the installation and configuration of a Linux server in a virtualized environment. Core security measures were implemented, including firewall 
+configuration, disabling root SSH login, enforcing key-based authentication, and installing required system packages. Secure remote access was configured and tested 
+to reflect real operational conditions.
 
-Sensitive information such as private keys, passwords, and access credentials has been intentionally removed from this document.
+A structured user and group management model was implemented, including role-based access control with distinct groups, sudo privileges for administrators, and shared 
+directories with correctly assigned permissions. This demonstrated an understanding of Linux permission models and least-privilege principles.
 
-This project was developed in a controlled educational environment. Secrets are expected to be provided via environment variables or secure configuration mechanisms in accordance with security best practices.
+A central part of the assignment was automation using Bash scripting. Multiple scripts were developed to handle recurring administrative tasks, including automated backups 
+with logging and retention policies, user management through a menu-driven interface, and system reporting through log analysis. The system report script analyzed authentication 
+logs, sudo usage, disk utilization, and SSH activity using standard Linux tools such as grep, awk, sed, and pipelines, producing timestamped reports.
 
+Additional focus was placed on operational reliability and security awareness, including log monitoring, disk usage thresholds, and optional alerting mechanisms. All scripts were 
+documented and designed to be maintainable and fault-tolerant.
 
-I. ACCESS & SETUP
-
-No Windows machine has been used to complete this coursework. The scripts have been made on Ubuntu host to work on a remote Ubuntu server (Digital Ocean). If you wish to ssh to the server from Windows please follow your own installation guide.
-
-The remote server runs on IP <REDACTED>
-Name of the server: <REDACTED>
-Custom port: <REDACTED>
-User with admin privileges:  <ADMIN_USR> 
-Password to access sudo privileges for <ADMIN_USR>: <REDACTED>
-
-!!! PLEASE DOWNLOAD THE PRIVATE KEY FILE <FILE_NAME> ATTACHED IN THIS FOLDER BEFORE ACCESSING THE SERVER!!! <FILE INTENTUONALLY MISSING>
-After downloading the file, change the file permission through chmod 600 /file
-
-access:  ssh -p xxxxx -i /the-path-you-downloaded-the-privatekey-file-to/file user_name@ip
-(compare with the access screenshot if necessary. Fail2ban installed on the server, set to ban 5 unsuccessful login attempts from the same IP for one hour)   
-
-<ADMIN_USR> belongs to "admins" group and "sheriffs" group 
-
-other users (as per task): (details also available in user_manager.sh)
-<CREATOR_USR>: the other admin with sudo privileges: admin group, sheriffs group
-<USR1dev>, <USR2dev> = developers group
-<USR1std>, <USR2std> = users group
-testuser= test user created for the needs of the user_manager.sh script
-Please note: there are three admins groups (admin, admins, sheriffs)
-
-II: SCRIPTS
-
-Attached scripts won’t work outside of the server setup and are already installed on the server. Please only use the attached script files as an absolute last resort if unable to connect to the sever and make relevant changes in file paths to fit your own configuration. The scripts files have been tested on Ubuntu host computer, the scripts on the server have been customised appropriately. Both work in their selective environment but not interchangeably.
-
-Some of tasks require sudo privileges. Please use sudo with each script on the server using the password above. 
-
-Scripts are present in /home directory of each user with admin privileges. When you enter the server, cd into /Scripts directory and you will be able to see the copies of all the scripts there. The scripts have been tested multiple times and should work faultlessly.
-There is also a second copy of all the scripts in /srv/shared/admins/Scripts dir. 
-You will need access to backup files and logs and it’s a good idea to ssh into <ADMIN_USR> account again from the second shell and cd into folder srv: cd /srv
-
-SCRIPT 1. sudo ./backup.sh
-
-The script saves a backup copy of the folder /srv/shared, which contains folders assigned to each group and their work. The /srv dir contains important longs and backups. 
-The backup files are saved in /srv/backups/ 
-There, you can see all the tar.gz files as well as the backup log. 
-Additionally, the backups are saved on the independent remote server. While the task doesn’t call for it, backups should never be central to the server. A VPS failure, cyberattack, or misconfiguration could wipe out access entirely. This is why the script is configured to also backup remotely via rclone into koofr.
-Optional: if you want to confirm if the files are backed up remotely via the script, you can access app.koofr.net with the following login details
-login: acccount@mailprovider.com
-password: <REDACTED> 
-All previously remotely created backups are in the Backups folder.
-
-If you decide to execute that script outside on the remote server please remove all the rclone-made filepaths and commands, otherwise script will fail.
-
-Cron: the backup is also set to run every day at midnight to create backups on the server, remotely as well as create logs in the file. 
-
-SCRIPT 2. sudo ./user_manager.sh
-This script doesn’t require any special access to files, just creates, deletes, lists and adds users to a group. A test user under the name “testuser” has been created for test the script functioning- it can be added to groups or deleted (other users are already assigned to the groups as per task)
-Please do not:
-- make any changes to <CREATOR_USR> user!
-- don’t make any changes to <ADMIN_USR> user either
-
-SCRIPT 3. sudo ./system_report.sh
-
-The script extracts relevant information as per task. It’s also color-coded as per VG requirement. 
-The system report creates a log file that is saved in /srv/shared/admins/security_log 
-
-Cron: the system_report script is set to do automatic check every 12 hours at 8am and 8pm and log findings into the file. 
-
-SCRIPT 4. Extra script: sudo ./EXTRAcheck_disk.sh
-
-The  purpose of the script is to monitor the disk usage and issue a warning in the form of a file under the condition that the disk is running at at least 90% capacity. If the disks haven't reachd that limit no warning file will be issued. If disks are full, the warning gets appended to a file. The file can be accessed on /srv/shared/admins/disc_warning.txt
-
-Cron is set every 5 hours to run in the background to assess if a warning should be issued. No disks are presently exceeding 90% capacity, so the warning is lowered to 20% to demonstrate script's functionality.  The treshold can be easily altered in the script. 
-
-III. SECURITY
-
-Please enter the commands per each action to observe which security measures have been applied. The security measures are strictly task-bound, NOT HIGHER so the access to the server remains discoverable and a remote connection from any IP can be maintained
-
-1. sudo nano /etc/ssh//sshd_config
-→ root login enabled: no
-→ password authentication enabled: no
-→ port: xxxxx
-
-2. sudo ufw status
-ssh-ip-portxxxxx/tcp       ALLOW       Anywhere                  
-80/tcp             ALLOW       Anywhere                  
-443/tcp           ALLOW       Anywhere
-
-
-3.  sudo nano /etc/fail2ban/jail.d/minimal.conf
-[sshd]
-enabled = true
-port    = xxxxx
-filter  = sshd
-logpath = /var/log/auth.log
-maxretry = 5
-findtime = 10m
-bantime  = 1h
-
-(Side note: fail2ban and UFW could be stricter, configured to ban IP ranges that have been returned by the shell logging attempts in the system_report.sh and allowing only specific IPs only but due to practical reasons margin of error is purposefully allowed as logging from unknown IP ranges is expected)
-
-4) SSH-keys enabled, created per user
-
-IV. CRON
-
-Enter sudo ctontab -e to see all background jobs. 
-
-backup.sh → /srv/backups and remotely on Koofr. 
-Cron runs one per day at midnight. The server needs to be running to successfully backup files remotely. 24 hour backup intervals are reasonable to backup all the work created during the day. Theoretically it would be more viabble to backup at the end of the working day i.e. everyday at 18.00 but the working day hours have to be strictly set and all work completed by the time, which is inefficeint.
-
-system_report.sh → /srv/shared/admins/security_log
-The cron is set to run twice a day in the 12 hr intervals at 8.00 am and 8.00pm. It is strategically timed at the beginning and the end of working day (contractually at least), allowing for thorough monitoring of system security and building an understanding of the threats and access trends (for instance in ssh login attempts). It strengthens understanding of the type of activities happening at nightime vs the daytime. 
-
-EXTRAcheck_disk.sh → /srv/shared/admins/disc_warning.txt
-This script is constructed in the way so it re-appears even if an admin deletes it. It’s set to run every 5 hours so it’s a thought-through “annoyance” forcing an admin to look into the overloaded disk issue or risk the message re-appearing endlessly.
-
-user_manager.sh  This script doesn’t need cron or  to run in the background. It’s a utility script for admins to run only when it’s needed
+The project concluded with comprehensive documentation describing the system architecture, installation steps, script functionality, security configurations, and reflections on 
+challenges and design decisions. Sensitive credentials and access details have been intentionally excluded in accordance with security best practices. -> this is a good readme?
