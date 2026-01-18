@@ -11,3 +11,4 @@ A central part of the assignment was automation using Bash scripting. Multiple s
 Additional focus was placed on operational reliability and security awareness, including log monitoring, disk usage thresholds, and optional alerting mechanisms. All scripts were documented and designed to be maintainable and fault-tolerant.
 
 The project concluded with comprehensive documentation describing the system architecture, installation steps, script functionality, security configurations, and reflections on challenges and design decisions. Sensitive credentials and access details have been intentionally excluded in accordance with security best practices.
+
