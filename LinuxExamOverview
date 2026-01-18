@@ -1,6 +1,7 @@
 Linux – Final Examination Project: Automated Server Management
 
-This project is an applied final examination assignment focused on Linux system administration, automation, and security, designed to simulate a real-world scenario for junior system administrators. 
+This project is an applied final examination assignment focused on Linux system administration, automation, and security, designed to simulate a real-world scenario for junior system administrators and 
+cybersecurity analysts. 
 The task was to build, secure, and manage a Linux-based server environment for a fictional company, emphasizing practical, hands-on skills rather than theory.
 
 The project began with the installation and configuration of a Linux server in a virtualized environment. Core security measures were implemented, including firewall configuration, disabling root SSH login, 
